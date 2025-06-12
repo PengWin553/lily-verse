@@ -5,18 +5,42 @@ export const useMangaContext = () => useContext(MangaContext);
 
 export const MangaProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load favorites from localStorage on component mount
   useEffect(() => {
-    const storedFavs = localStorage.getItem("favorites");
-    if (storedFavs) setFavorites(JSON.parse(storedFavs));
+    try {
+      const storedFavs = localStorage.getItem("favorites");
+      if (storedFavs) {
+        const parsedFavs = JSON.parse(storedFavs);
+        setFavorites(parsedFavs);
+      }
+    } catch (error) {
+      console.error("Error loading favorites from localStorage:", error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  // Save favorites to localStorage whenever favorites change
   useEffect(() => {
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
+    if (!isLoading) {
+      try {
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+      } catch (error) {
+        console.error("Error saving favorites to localStorage:", error);
+      }
+    }
+  }, [favorites, isLoading]);
 
   const addToFavorites = (manga) => {
-    setFavorites((prev) => [...prev, manga]);
+    setFavorites((prev) => {
+      // Check if already exists to prevent duplicates
+      if (prev.some(m => m.id === manga.id)) {
+        return prev;
+      }
+      return [...prev, manga];
+    });
   };
 
   const removeFromFavorites = (mangaId) => {
@@ -32,6 +56,7 @@ export const MangaProvider = ({ children }) => {
     addToFavorites,
     removeFromFavorites,
     isFavorite,
+    isLoading,
   };
 
   return <MangaContext.Provider value={value}>{children}</MangaContext.Provider>;

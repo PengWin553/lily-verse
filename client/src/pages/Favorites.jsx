@@ -5,13 +5,22 @@ import MangaCard from '../components/MangaCard'
 
 const Favorites = () => {
   // Get the list of favorite Mangas from context
-  const { favorites } = useMangaContext();
+  const { favorites, isLoading } = useMangaContext();
 
-  // Render list of favorites if there are any
-  if (favorites) {
+  // Show loading state while favorites are being loaded from localStorage
+  if (isLoading) {
     return (
       <div className="favorites">
-        <h2>Your Favorites</h2>
+        <h2>Loading favorites...</h2>
+      </div>
+    );
+  }
+
+  // Render list of favorites if there are any
+  if (favorites && favorites.length > 0) {
+    return (
+      <div className="favorites">
+        <h2>Your Favorites ({favorites.length})</h2>
         <div className="movies-grid">
           {favorites.map((manga) => (
             <MangaCard manga={manga} key={manga.id}/>
