@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import MangaCard from '../components/MangaCard';
 import { getYuriManga, searchManga } from '../services/api';
 import "../css/Home.css";
+import searchIcon from '../assets/search.svg';
 
 const LIMIT = 50;
 
@@ -62,18 +63,21 @@ const Home = () => {
   return (
     <div className="home">
       <form onSubmit={handleSearch} className="search-form">
-        <input
-          type="text"
-          placeholder="Search for manga..."
-          className="search-input"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            if (e.target.value === "") {
-              setCurrentPage(0); // Reset to first page when query is cleared
-            }
-          }}
-        />
+        <div className="search-input-wrapper">
+          <img src={searchIcon} alt="Search" className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search for manga..."
+            className="search-input"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (e.target.value === "") {
+                setCurrentPage(0); // Reset to first page when query is cleared
+              }
+            }}
+          />
+        </div>
         <button type="submit" className="search-button">Search</button>
       </form>
 

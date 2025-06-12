@@ -9,12 +9,15 @@
 
 .navbar-brand {
     font-size: 1.5rem;
-    font-weight: bold;
+    font-weight: bolder;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .navbar-links {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 .nav-link {
@@ -22,10 +25,13 @@
     padding: 0.5rem 1rem;
     border-radius: 4px;
     transition: background-color 0.2s;
+    font-weight: 700;
+    color: rgb(90, 89, 89);
+    font-family: 'Raleway', sans-serif;
 }
 
-.nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+.nav-link:hover{
+    color: rgb(242, 131, 242);
 }
 
 @media (max-width: 768px) {
@@ -44,4 +50,20 @@
     .nav-link {
         padding: 0.5rem;
     }
+}
+
+.brand-name {
+    /* background: pink; */
+    font-weight: 600;
+    font-family: "Raleway", sans-serif;
+    background: linear-gradient(135deg, rgb(244, 167, 238), rgb(229, 139, 237), rgb(220, 117, 229));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    margin-left: 0.5rem;
+}
+
+.navbar-logo{
+    height: 2.5rem;
 }

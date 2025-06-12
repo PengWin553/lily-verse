@@ -8,7 +8,8 @@ const Navbar = () => {
     <nav className="navbar">
         {/* Brand/logo link pointing to the Home route */}
         <div className="navbar-brand">
-            <Link to="/">Lily Verse</Link>
+            <img src="/lily-verse.svg" alt="Lily Verse Logo" className='navbar-logo'/>
+            <Link to="/"> <p className='brand-name'> LilyVerse </p></Link>
         </div>
 
         {/* Navigation links */}
