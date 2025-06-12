@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/MangaCard.css';
 import { useMangaContext } from '../contexts/MangaContext';
 
 const MangaCard = ({ manga }) => {
+  const navigate = useNavigate();
   const { isFavorite, addToFavorites, removeFromFavorites } = useMangaContext();
   const favorite = isFavorite(manga.id);
 
@@ -20,11 +22,16 @@ const MangaCard = ({ manga }) => {
 
   const onFavoriteClick = (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent card click when clicking favorite button
     favorite ? removeFromFavorites(manga.id) : addToFavorites(manga);
   };
 
+  const onCardClick = () => {
+    navigate(`/manga/${manga.id}`);
+  };
+
   return (
-    <div className="movie-card">
+    <div className="movie-card" onClick={onCardClick}>
       <div className="movie-poster">
         <img src={coverUrl} alt={title} />
         <div className="movie-overlay">

@@ -8,8 +8,8 @@
     display: flex;
     flex-direction: column;
     /* border: 1px solid rgb(237, 237, 237); */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 
-            0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .movie-card:hover {
@@ -107,6 +107,23 @@
     color: #ffd700;
     font-size: 0.9rem;
     margin-top: auto;
+}
+
+.movie-card {
+    /* Your existing styles */
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure the favorite button doesn't trigger card hover when clicked */
+.favorite-btn {
+    position: relative;
+    z-index: 10;
 }
 
 @media (max-width: 768px) {

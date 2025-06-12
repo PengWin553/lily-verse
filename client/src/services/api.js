@@ -25,3 +25,36 @@ export const searchManga = async (query) => {
   const data = await response.json();
   return data.data;
 };
+
+export const getMangaById = async (mangaId) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/manga/${mangaId}?includes[]=cover_art&includes[]=author&includes[]=artist`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.data;
+  } catch (error) {
+    console.error('Error fetching manga details:', error);
+    throw error;
+  }
+};
+
+// Fetch manga statistics (ratings, bookmarks, comments)
+export const getMangaStatistics = async (mangaId) => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/statistics/manga/${mangaId}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.statistics[mangaId];
+  } catch (error) {
+    console.error('Error fetching manga statistics:', error);
+    throw error;
+  }
+};

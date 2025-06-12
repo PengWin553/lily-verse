@@ -1,5 +1,6 @@
 import Favorites from './pages/Favorites'
 import Home from './pages/Home'
+import MangaDetail from './pages/MangaDetail'
 import { Routes, Route } from 'react-router-dom'
 import { MangaProvider } from './contexts/MangaContext'
 import Navbar from './components/Navbar'
@@ -22,6 +23,9 @@ function App() {
 
             {/* Route for Favorites page */}
             <Route path="/favorites" element={<Favorites />} />
+
+            {/* Route for Manga Detail page */}
+            <Route path="/manga/:id" element={<MangaDetail />} />
           </Routes>
         </main>
       </MangaProvider>
