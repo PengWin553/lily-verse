@@ -1,83 +1,74 @@
-// Importing React and necessary hooks
-import React, { useState, useEffect } from 'react'
-// Importing the MovieCard component for displaying individual movie info
-import MovieCard from '../components/MovieCard'
-import { getPopularMovies, searchMovies } from '../services/api'
-import "../css/Home.css"
+import React, { useState, useEffect } from 'react';
+import MangaCard from '../components/MangaCard';
+import { getYuriManga, searchManga } from '../services/api';
+import "../css/Home.css";
 
 const Home = () => {
+  const [mangaList, setMangaList] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const [movies, setMovies] = useState([]);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim() || loading) return;
+    setLoading(true);
 
-    // State to store the user's search query
-    const [searchQuery, setSearchQuery] = useState("");
-
-    // Function to handle the form submission event
-    const handleSearch = async (e) => {
-        e.preventDefault(); // Prevents page reload when form is submitted
-        
-        if (!searchQuery.trim()) return; // prevents loading results with white space input
-        if (loading) return; // prevents search function when it's already loading results
-
-        setLoading(true); // gives an indicator that the page is loading results
-
-        try {
-            const searchResults = await searchMovies(searchQuery);
-            setMovies(searchResults);
-            setError(null);
-        } catch (err) {
-            console.log(err);
-            setError("Failed to search movies...");
-        } finally {
-            setLoading(false);
-        }
-
+    try {
+      const searchResults = await searchManga(searchQuery);
+      setMangaList(searchResults);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to search manga...");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    useEffect(() => {
-        const loadPopularMovies = async () => {
-            try {
-                const popularMovies = await getPopularMovies();
-                setMovies(popularMovies);
-            } catch (err) {
-                console.log(err);
-                setError("Failed to load movies...");
-            } finally {
-                setLoading(false);
-            }
-        }
+  useEffect(() => {
+    const loadYuriManga = async () => {
+      try {
+        const yuriManga = await getYuriManga();
+        setMangaList(yuriManga);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load manga...");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        loadPopularMovies();
-    }, [])
+    loadYuriManga();
+  }, []);
 
-    return (
-        <div className='home'>
+  return (
+    <div className="home">
+      <form onSubmit={handleSearch} className="search-form">
+        <input
+          type="text"
+          placeholder="Search for manga..."
+          className="search-input"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <button type="submit" className="search-button">Search</button>
+      </form>
 
-            {/* Search form */}
-            <form onSubmit={handleSearch} className='search-form'>
-                <input 
-                    type="text" 
-                    placeholder='Search for movies...' 
-                    className='search-input' 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)} // Updates state as user types
-                />
-                <button type='submit' className='search-button'>Search</button>
-            </form>
+      {error && <p className="error">{error}</p>}
 
-            {/* Movie cards displayed in a grid */}
-            <div className="movies-grid">
-                {movies.map((movie) => (
-                    // Render MovieCard only if movie title starts with search query (case-insensitive)
-                    movie.title.toLowerCase().startsWith(searchQuery.toLowerCase()) &&
-                    <MovieCard movie={movie} key={movie.id} />
-                ))}
-            </div>
-        </div>
-    )
-}
+      <div className="movies-grid">
+        {mangaList.map((manga) => {
+          const title = manga.attributes.title.en || "";
+          return (
+            (!searchQuery || title.toLowerCase().startsWith(searchQuery.toLowerCase())) && (
+              <MangaCard manga={manga} key={manga.id} />
+            )
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
-// Exporting Home component as default
-export default Home
+export default Home;

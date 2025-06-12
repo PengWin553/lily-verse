@@ -1,7 +1,7 @@
 import Favorites from './pages/Favorites'
 import Home from './pages/Home'
 import { Routes, Route } from 'react-router-dom'
-import { MovieProvider } from './contexts/MovieContext'
+import { MangaProvider } from './contexts/MangaContext'
 import Navbar from './components/Navbar'
 import "../src/css/App.css"
 
@@ -9,8 +9,8 @@ import "../src/css/App.css"
 function App() {
   return (
     <div>
-      {/* Provide the movie context to all child components */}
-      <MovieProvider>
+      {/* Provide the Manga context to all child components */}
+      <MangaProvider>
         {/* Top navigation bar */}
         <Navbar />
 
@@ -24,7 +24,7 @@ function App() {
             <Route path="/favorites" element={<Favorites />} />
           </Routes>
         </main>
-      </MovieProvider>
+      </MangaProvider>
     </div>
   )
 }
