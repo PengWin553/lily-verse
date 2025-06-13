@@ -4,7 +4,6 @@ const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
@@ -13,17 +12,33 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Base MangaDX API URL
-const MANGADX_BASE_URL = 'https://api.mangadex.org';
+// Base MANGADEX API URL
+const MANGADEX_BASE_URL = 'https://api.mangadex.org';
 
 // Routes
+
+// Root route - welcome message
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Lilyverse Backend API',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    endpoints: {
+      health: '/api/health',
+      yuriManga: '/api/manga/yuri',
+      searchManga: '/api/manga/search?q=<query>',
+      mangaDetails: '/api/manga/<id>',
+      mangaStats: '/api/statistics/manga/<id>'
+    }
+  });
+});
 
 // Get Yuri manga with pagination
 app.get('/api/manga/yuri', async (req, res) => {
   try {
     const { offset = 0, limit = 50 } = req.query;
     
-    const response = await axios.get(`${MANGADX_BASE_URL}/manga`, {
+    const response = await axios.get(`${MANGADEX_BASE_URL}/manga`, {
       params: {
         'includes[]': 'cover_art',
         limit: parseInt(limit),
@@ -57,7 +72,7 @@ app.get('/api/manga/search', async (req, res) => {
       return res.status(400).json({ error: 'Search query is required' });
     }
 
-    const response = await axios.get(`${MANGADX_BASE_URL}/manga`, {
+    const response = await axios.get(`${MANGADEX_BASE_URL}/manga`, {
       params: {
         'includes[]': 'cover_art',
         title: q.trim(),
@@ -81,7 +96,7 @@ app.get('/api/manga/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const response = await axios.get(`${MANGADX_BASE_URL}/manga/${id}`, {
+    const response = await axios.get(`${MANGADEX_BASE_URL}/manga/${id}`, {
       params: {
         'includes[]': 'cover_art'
       }
@@ -105,7 +120,7 @@ app.get('/api/statistics/manga/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const response = await axios.get(`${MANGADX_BASE_URL}/statistics/manga/${id}`);
+    const response = await axios.get(`${MANGADEX_BASE_URL}/statistics/manga/${id}`);
 
     res.json(response.data.statistics[id] || {});
   } catch (error) {
@@ -143,8 +158,16 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Express server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-});
+// For Vercel serverless functions
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Express server running on port ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
