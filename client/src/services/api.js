@@ -1,60 +1,122 @@
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Yuri genre tag (covers both Yuri & Shoujo Ai in MangaDex)
-const yuriTagId = 'b13b2a48-c720-44a9-9c77-39c9979373fb';
+const handleApiError = (error, context) => {
+  console.error(`Error in ${context}:`, error);
 
-/**
- * Fetch Yuri manga including NSFW
- */
-export const getYuriManga = async (offset = 0, limit = 50) => {
-  const response = await fetch(
-    `${BASE_URL}/manga?includes[]=cover_art&limit=${limit}&offset=${offset}&includedTags[]=${yuriTagId}&order[followedCount]=desc`
-  );
-  const data = await response.json();
-  return {
-    manga: data.data,
-    total: data.total
-  };
-};
-
-// Search Manga by Title
-export const searchManga = async (query) => {
-  const response = await fetch(
-    `${BASE_URL}/manga?includes[]=cover_art&title=${encodeURIComponent(query)}&limit=50`
-  );
-  const data = await response.json();
-  return data.data;
-};
-
-export const getMangaById = async (mangaId) => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/manga/${mangaId}?includes[]=cover_art&includes[]=author&includes[]=artist`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.data;
-  } catch (error) {
-    console.error('Error fetching manga details:', error);
-    throw error;
+  if (error.response) {
+    // Server responded with error status
+    const message = error.response.data?.message || error.response.data?.error || 'Server error';
+    throw new Error(`${context}: ${message}`);
+  } else if (error.request) {
+    // Request made but no response received
+    throw new Error(`${context}: Network error - please check your connection`);
+  } else {
+    // Something else happened
+    throw new Error(`${context}: ${error.message}`);
   }
 };
 
-// Fetch manga statistics (ratings, bookmarks, comments)
-export const getMangaStatistics = async (mangaId) => {
+export const getYuriManga = async (offset = 0, limit = 50) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL}/statistics/manga/${mangaId}`);
-    
+    const response = await fetch(`${API_BASE_URL}/manga/yuri?offset=${offset}&limit=${limit}`);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    return data.statistics[mangaId];
+    return {
+      manga: data.manga || [],
+      total: data.total || 0,
+      limit: data.limit || limit,
+      offset: data.offset || offset
+    };
   } catch (error) {
-    console.error('Error fetching manga statistics:', error);
+    handleApiError(error, 'getYuriManga');
+  }
+};
+
+export const searchManga = async (query, limit = 50) => {
+  try {
+    if (!query || query.trim() === '') {
+      throw new Error('Search query cannot be empty');
+    }
+
+    const encodedQuery = encodeURIComponent(query.trim());
+    const response = await fetch(`${API_BASE_URL}/manga/search?q=${encodedQuery}&limit=${limit}`);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    handleApiError(error, 'searchManga');
+  }
+};
+
+export const getMangaById = async (id) => {
+  try {
+    if (!id) {
+      throw new Error('Manga ID is required');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/manga/${id}`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Manga not found');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    handleApiError(error, 'getMangaById');
+  }
+};
+
+export const getMangaStatistics = async (id) => {
+  try {
+    if (!id) {
+      throw new Error('Manga ID is required');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/statistics/manga/${id}`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Statistics might not exist, return empty object
+        return {};
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    // For statistics, we can be more lenient with errors
+    console.warn('Failed to fetch manga statistics:', error.message);
+    return {}; // Return empty object instead of throwing
+  }
+};
+
+// Health check function for debugging
+export const checkApiHealth = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health`);
+    if (!response.ok) {
+      throw new Error(`Health check failed: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('API health check failed:', error);
     throw error;
   }
 };
