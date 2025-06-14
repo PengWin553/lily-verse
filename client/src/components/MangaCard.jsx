@@ -15,20 +15,10 @@ const MangaCard = ({ manga }) => {
   const coverArt = manga.relationships?.find(rel => rel.type === 'cover_art');
   const fileName = coverArt?.attributes?.fileName;
 
-  // Construct the cover image URL using proxy
-  const getCoverUrl = () => {
-    if (!fileName) {
-      return 'https://via.placeholder.com/256x400?text=No+Cover';
-    }
-
-    const originalUrl = `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`;
-    
-    // Use proxy in production, direct URL in development
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
-    return `${backendUrl}/api/proxy-image?url=${encodeURIComponent(originalUrl)}`;
-  };
-
-  const coverUrl = getCoverUrl();
+  // Construct the full cover image URL
+  const coverUrl = fileName
+    ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`
+    : 'https://via.placeholder.com/256x400?text=No+Cover';
 
   const onFavoriteClick = (e) => {
     e.preventDefault();
@@ -43,14 +33,7 @@ const MangaCard = ({ manga }) => {
   return (
     <div className="movie-card" onClick={onCardClick}>
       <div className="movie-poster">
-        <img 
-          src={coverUrl} 
-          alt={title}
-          onError={(e) => {
-            // Fallback to placeholder if proxy fails
-            e.target.src = 'https://via.placeholder.com/256x400?text=No+Cover';
-          }}
-        />
+        <img src={coverUrl} alt={title} />
         <div className="movie-overlay">
           <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={onFavoriteClick}>
             ♥
