@@ -33,7 +33,7 @@ const MangaCard = ({ manga }) => {
   return (
     <div className="movie-card" onClick={onCardClick}>
       <div className="movie-poster">
-        <img src={coverUrl} alt={title} />
+        <img src="https://via.placeholder.com/256x400?text=Test+Image" />
         <div className="movie-overlay">
           <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={onFavoriteClick}>
             ♥
