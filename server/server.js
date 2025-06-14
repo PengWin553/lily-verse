@@ -135,6 +135,32 @@ app.get('/api/statistics/manga/:id', async (req, res) => {
   }
 });
 
+// Proxy images
+app.get('/api/cover/:mangaId/:fileName', async (req, res) => {
+  try {
+    const { mangaId, fileName } = req.params;
+    const imageUrl = `https://uploads.mangadx.org/covers/${mangaId}/${fileName}`;
+    
+    const response = await axios.get(imageUrl, {
+      responseType: 'stream',
+      headers: {
+        'User-Agent': 'YourApp/1.0.0'
+      }
+    });
+    
+    // Set proper headers
+    res.set({
+      'Content-Type': response.headers['content-type'],
+      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+    });
+    
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error proxying cover image:', error.message);
+    res.status(404).send('Image not found');
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
