@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const handleApiError = (error, context) => {
   console.error(`Error in ${context}:`, error);
@@ -18,7 +18,7 @@ const handleApiError = (error, context) => {
 
 export const getYuriManga = async (offset = 0, limit = 50) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/manga/yuri?offset=${offset}&limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/api/manga/yuri?offset=${offset}&limit=${limit}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -44,7 +44,7 @@ export const searchManga = async (query, limit = 50) => {
     }
 
     const encodedQuery = encodeURIComponent(query.trim());
-    const response = await fetch(`${API_BASE_URL}/manga/search?q=${encodedQuery}&limit=${limit}`);
+    const response = await fetch(`${API_BASE_URL}/api/manga/search?q=${encodedQuery}&limit=${limit}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -64,7 +64,7 @@ export const getMangaById = async (id) => {
       throw new Error('Manga ID is required');
     }
 
-    const response = await fetch(`${API_BASE_URL}/manga/${id}`);
+    const response = await fetch(`${API_BASE_URL}/api/manga/${id}`);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -87,7 +87,7 @@ export const getMangaStatistics = async (id) => {
       throw new Error('Manga ID is required');
     }
 
-    const response = await fetch(`${API_BASE_URL}/statistics/manga/${id}`);
+    const response = await fetch(`${API_BASE_URL}/api/statistics/manga/${id}`);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -110,7 +110,7 @@ export const getMangaStatistics = async (id) => {
 // Health check function for debugging
 export const checkApiHealth = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/health`);
+    const response = await fetch(`${API_BASE_URL}/api/health`);
     if (!response.ok) {
       throw new Error(`Health check failed: ${response.statusText}`);
     }
