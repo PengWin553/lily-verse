@@ -7,6 +7,7 @@ const MangaCard = ({ manga }) => {
   const navigate = useNavigate();
   const { isFavorite, addToFavorites, removeFromFavorites } = useMangaContext();
   const favorite = isFavorite(manga.id);
+  const workingURL = 'https://uploads.mangadex.org/covers/de9e3b62-eac5-4c0a-917d-ffccad694381/0e48b9df-2c77-4601-823c-d78252c022bd.jpg';
 
   const title = manga.attributes?.title?.en || 'Untitled';
   const year = manga.attributes?.year || 'N/A';
@@ -35,6 +36,7 @@ const MangaCard = ({ manga }) => {
       <div className="movie-poster">
         {/* <img src={coverUrl} alt={title} /> */}
         <p>{coverUrl}</p>
+        <img src={workingURL} alt="TEST IMAGE" />
         <div className="movie-overlay">
           <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={onFavoriteClick}>
             ♥
