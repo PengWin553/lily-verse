@@ -28,9 +28,50 @@ app.get('/', (req, res) => {
       yuriManga: '/api/manga/yuri',
       searchManga: '/api/manga/search?q=<query>',
       mangaDetails: '/api/manga/<id>',
-      mangaStats: '/api/statistics/manga/<id>'
+      mangaStats: '/api/statistics/manga/<id>',
+      proxyImage: '/api/proxy-image?url=<encoded_url>'
     }
   });
+});
+
+// Image proxy endpoint to handle CORS issues
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter is required' });
+    }
+
+    // Validate that the URL is from MangaDX to prevent abuse
+    const decodedUrl = decodeURIComponent(url);
+    if (!decodedUrl.startsWith('https://uploads.mangadex.org/')) {
+      return res.status(400).json({ error: 'Only MangaDX cover URLs are allowed' });
+    }
+
+    // Fetch the image
+    const response = await axios.get(decodedUrl, {
+      responseType: 'stream',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    // Set appropriate headers
+    res.setHeader('Content-Type', response.headers['content-type'] || 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Pipe the image data
+    response.data.pipe(res);
+
+  } catch (error) {
+    console.error('Error proxying image:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to proxy image',
+      message: error.response?.data?.message || error.message 
+    });
+  }
 });
 
 // Get Yuri manga with pagination
