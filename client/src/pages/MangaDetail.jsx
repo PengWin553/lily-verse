@@ -13,6 +13,11 @@ const MangaDetail = () => {
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Image loading states
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [imgSrc, setImgSrc] = useState('');
 
   useEffect(() => {
     const fetchMangaDetails = async () => {
@@ -40,6 +45,41 @@ const MangaDetail = () => {
       fetchMangaDetails();
     }
   }, [id]);
+
+  // Update image source when manga data changes
+  useEffect(() => {
+    if (manga) {
+      // Find the related cover_art object
+      const coverArt = manga.relationships?.find(rel => rel.type === 'cover_art');
+      const fileName = coverArt?.attributes?.fileName;
+
+      // Construct the full cover image URL
+      const originalCoverUrl = fileName
+        ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`
+        : null;
+
+      // Use proxy URL for MangaDex images
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const proxyUrl = originalCoverUrl
+        ? `${API_BASE_URL}/api/proxy-image?url=${encodeURIComponent(originalCoverUrl)}`
+        : 'https://via.placeholder.com/400x600?text=No+Cover';
+
+      setImgSrc(proxyUrl);
+      setImageLoaded(false);
+      setImageError(false);
+    }
+  }, [manga]);
+
+  const handleImageError = () => {
+    console.warn('Failed to load manga detail image:', imgSrc);
+    setImageError(true);
+    setImgSrc('https://via.placeholder.com/400x600?text=No+Cover');
+  };
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+    setImageError(false);
+  };
 
   if (loading) {
     return (
@@ -78,15 +118,6 @@ const MangaDetail = () => {
   const tags = manga.attributes?.tags || [];
   const contentRating = manga.attributes?.contentRating || 'Not specified';
 
-  // Find the related cover_art object
-  const coverArt = manga.relationships?.find(rel => rel.type === 'cover_art');
-  const fileName = coverArt?.attributes?.fileName;
-
-  // Construct the full cover image URL
-  const coverUrl = fileName
-    ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`
-    : 'https://via.placeholder.com/400x600?text=No+Cover';
-
   const favorite = isFavorite(manga.id);
 
   const onFavoriteClick = () => {
@@ -109,7 +140,34 @@ const MangaDetail = () => {
       
       <div className="manga-detail-content">
         <div className="manga-cover-section">
-          <img src={coverUrl} alt={title} className="manga-cover-large" />
+          <div className="manga-cover-container" style={{ position: 'relative' }}>
+            <img 
+              src={imgSrc} 
+              alt={title} 
+              className="manga-cover-large"
+              onError={handleImageError}
+              onLoad={handleImageLoad}
+              style={{ 
+                opacity: imageLoaded ? 1 : 0.7,
+                transition: 'opacity 0.3s ease'
+              }}
+            />
+            {!imageLoaded && !imageError && (
+              <div className="loading-placeholder" style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                color: '#666',
+                fontSize: '16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                padding: '10px 15px',
+                borderRadius: '5px'
+              }}>
+                Loading cover...
+              </div>
+            )}
+          </div>
           <button 
             className={`favorite-btn-large ${favorite ? 'active' : ''}`} 
             onClick={onFavoriteClick}
