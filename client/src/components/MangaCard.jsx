@@ -4,7 +4,6 @@ import '../css/MangaCard.css';
 import { useMangaContext } from '../contexts/MangaContext';
 
 const MangaCard = ({ manga }) => {
-  const [imageError, setImageError] = useState(false);
   const navigate = useNavigate();
   const { isFavorite, addToFavorites, removeFromFavorites } = useMangaContext();
   const favorite = isFavorite(manga.id);
@@ -18,19 +17,13 @@ const MangaCard = ({ manga }) => {
 
   // Construct the full cover image URL
   const coverUrl = fileName
-    ? `${process.env.VITE_API_URL || 'http://localhost:5000'}/api/cover/${manga.id}/${fileName}`
+    ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}`
     : 'https://via.placeholder.com/256x400?text=No+Cover';
 
   const onFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent card click when clicking favorite button
     favorite ? removeFromFavorites(manga.id) : addToFavorites(manga);
-  };
-
-  const handleImageError = (e) => {
-    console.error('Image failed to load:', coverUrl);
-    setImageError(true);
-    e.target.src = 'https://via.placeholder.com/256x400?text=No+Cover';
   };
 
   const onCardClick = () => {
@@ -40,12 +33,7 @@ const MangaCard = ({ manga }) => {
   return (
     <div className="movie-card" onClick={onCardClick}>
       <div className="movie-poster">
-        <img 
-            src={imageError ? 'https://via.placeholder.com/256x400?text=No+Cover' : coverUrl}
-            alt={title} 
-            crossOrigin="anonymous"
-            onError={handleImageError}
-        />
+        <img src="https://via.placeholder.com/256x400?text=Test+Image" />
         <div className="movie-overlay">
           <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={onFavoriteClick}>
             ♥
