@@ -36,7 +36,8 @@ const MangaCard = ({ manga }) => {
       <div className="movie-poster">
         {/* <img src={coverUrl} alt={title} /> */}
         <p>{coverUrl}</p>
-        <img src={workingURL} alt="TEST IMAGE" />
+        <img src={workingURL} alt="TEST IMAGE" crossOrigin="anonymous"/>
+        
         <div className="movie-overlay">
           <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={onFavoriteClick}>
             ♥
