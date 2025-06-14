@@ -33,7 +33,7 @@ const MangaCard = ({ manga }) => {
   return (
     <div className="movie-card" onClick={onCardClick}>
       <div className="movie-poster">
-        <img src={coverUrl} alt={title} />
+        {/* <img src={coverUrl} alt={title} /> */}
         <p>{coverUrl}</p>
         <div className="movie-overlay">
           <button className={`favorite-btn ${favorite ? 'active' : ''}`} onClick={onFavoriteClick}>
