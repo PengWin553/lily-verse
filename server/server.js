@@ -13,7 +13,7 @@ app.use(cors({
 app.use(express.json());
 
 // Base MANGADEX API URL
-const MANGADEX_BASE_URL = 'https://api.mangadex.org';
+const MANGADX_BASE_URL = 'https://api.mangadex.org';
 
 // Routes
 
@@ -28,9 +28,61 @@ app.get('/', (req, res) => {
       yuriManga: '/api/manga/yuri',
       searchManga: '/api/manga/search?q=<query>',
       mangaDetails: '/api/manga/<id>',
-      mangaStats: '/api/statistics/manga/<id>'
+      mangaStats: '/api/statistics/manga/<id>',
+      proxyImage: '/api/proxy-image?url=<encoded_url>'
     }
   });
+});
+
+// Image proxy endpoint for MangaDex covers
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const { url } = req.query;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL parameter is required' });
+    }
+
+    // Validate that the URL is from MangaDex
+    if (!url.startsWith('https://uploads.mangadex.org/')) {
+      return res.status(400).json({ error: 'Only MangaDx cover URLs are allowed' });
+    }
+
+    const response = await axios.get(url, {
+      responseType: 'stream',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Referer': 'https://mangadex.org/'
+      },
+      timeout: 10000 // 10 second timeout
+    });
+
+    // Set appropriate headers
+    res.set({
+      'Content-Type': response.headers['content-type'] || 'image/jpeg',
+      'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
+      'Access-Control-Allow-Origin': process.env.FRONTEND_URL || 'http://localhost:5173'
+    });
+
+    // Pipe the image data to the response
+    response.data.pipe(res);
+
+  } catch (error) {
+    console.error('Error proxying image:', error.message);
+    
+    if (error.code === 'ECONNABORTED') {
+      return res.status(408).json({ error: 'Request timeout' });
+    }
+    
+    if (error.response?.status === 404) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to proxy image',
+      message: error.message 
+    });
+  }
 });
 
 // Get Yuri manga with pagination
@@ -38,7 +90,7 @@ app.get('/api/manga/yuri', async (req, res) => {
   try {
     const { offset = 0, limit = 50 } = req.query;
     
-    const response = await axios.get(`${MANGADEX_BASE_URL}/manga`, {
+    const response = await axios.get(`${MANGADX_BASE_URL}/manga`, {
       params: {
         'includes[]': 'cover_art',
         limit: parseInt(limit),
@@ -72,7 +124,7 @@ app.get('/api/manga/search', async (req, res) => {
       return res.status(400).json({ error: 'Search query is required' });
     }
 
-    const response = await axios.get(`${MANGADEX_BASE_URL}/manga`, {
+    const response = await axios.get(`${MANGADX_BASE_URL}/manga`, {
       params: {
         'includes[]': 'cover_art',
         title: q.trim(),
@@ -96,7 +148,7 @@ app.get('/api/manga/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const response = await axios.get(`${MANGADEX_BASE_URL}/manga/${id}`, {
+    const response = await axios.get(`${MANGADX_BASE_URL}/manga/${id}`, {
       params: {
         'includes[]': 'cover_art'
       }
@@ -120,7 +172,7 @@ app.get('/api/statistics/manga/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const response = await axios.get(`${MANGADEX_BASE_URL}/statistics/manga/${id}`);
+    const response = await axios.get(`${MANGADX_BASE_URL}/statistics/manga/${id}`);
 
     res.json(response.data.statistics[id] || {});
   } catch (error) {
