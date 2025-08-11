@@ -5,6 +5,7 @@ import { Routes, Route } from 'react-router-dom'
 import { MangaProvider } from './contexts/MangaContext'
 import Navbar from './components/Navbar'
 import "../src/css/App.css"
+import UncleBrada from './pages/UncleBradaLoveEuphie'
 
 // Main App component
 function App() {
@@ -26,6 +27,8 @@ function App() {
 
             {/* Route for Manga Detail page */}
             <Route path="/manga/:id" element={<MangaDetail />} />
+
+            <Route path="/uncle-brada-love-euphie" element={<UncleBrada />} />
           </Routes>
         </main>
       </MangaProvider>

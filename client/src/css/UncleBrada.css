@@ -1,0 +1,92 @@
+.uncle-brada-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #f9f8fa;
+  text-align: center;
+}
+
+.title {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.image-flex-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.image-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 320px;
+  cursor: pointer;
+}
+
+.profile-image {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-image:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.image-label {
+  margin-top: 1rem;
+  font-family: 'Arial', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.heart-divider {
+  font-size: 3rem;
+  color: #ff6b6b;
+  animation: pulse 1.5s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .image-flex-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .heart-divider {
+    margin: 1rem 0;
+    transform: rotate(90deg);
+  }
+  
+  .image-card {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 400px) {
+  .profile-image {
+    width: 280px;
+    height: 280px;
+  }
+}

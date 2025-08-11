@@ -19,6 +19,8 @@ const Navbar = () => {
 
             {/* Link to the Favorites page (note: spelling corrected from 'favories' to 'favorites') */}
             <Link to="/favorites" className="nav-link">Favorites</Link>
+
+            <Link to="/uncle-brada-love-euphie" className="nav-link">Uncle Brada</Link>
         </div>
     </nav>
   );
