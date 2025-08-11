@@ -1,5 +1,6 @@
 import React from 'react';
 import uncleBrada from '../assets/UncleBrada.jpg';
+import euphie from '../assets/Euphie.jpg';
 import '../css/UncleBrada.css';
 
 const UncleBrada = () => {
@@ -21,7 +22,7 @@ const UncleBrada = () => {
         
         <div className="image-card">
           <img 
-            src="https://i.pinimg.com/originals/11/3a/c9/113ac9accc9fc19337dced9154f6b0ec.jpg" 
+            src={euphie}
             alt="Euphie" 
             className="profile-image"
           />
